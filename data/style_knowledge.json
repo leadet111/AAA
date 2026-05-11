@@ -1,0 +1,459 @@
+{
+  "face_shapes": {
+    "round": {
+      "id": "round",
+      "name": "圆形脸",
+      "description": "脸部线条柔和，额头和下巴宽度相近，脸颊饱满，给人亲切可爱的感觉。",
+      "features": ["额头和下巴宽度相近", "脸颊饱满", "下颌线条圆润"],
+      "hair_tips": [
+        "选择有层次感的长发或锁骨发，拉长脸型",
+        "避免齐刘海和贴头皮的直发",
+        "侧分或斜刘海可以修饰脸部轮廓",
+        "顶部蓬松的发型能增加头顶高度"
+      ],
+      "collar_tips": ["V领、深U领拉长颈部线条", "避免高领和圆领"]
+    },
+    "square": {
+      "id": "square",
+      "name": "方形脸",
+      "description": "额头、颧骨和下颌宽度相近，下颌线条明显，轮廓硬朗，给人干练稳重的印象。",
+      "features": ["额头、颧骨、下颌宽度相近", "下颌角明显", "轮廓硬朗"],
+      "hair_tips": [
+        "选择柔和的波浪卷或微卷发软化棱角",
+        "侧分长刘海能遮盖下颌角",
+        "避免齐耳短发和一刀切直发",
+        "头顶蓬松+发尾内卷是最佳选择"
+      ],
+      "collar_tips": ["圆领、荡领柔化线条", "避免方领和锐利的V领"]
+    },
+    "long": {
+      "id": "long",
+      "name": "长形脸",
+      "description": "脸长明显大于脸宽，额头或下巴偏长，整体线条流畅，给人成熟知性的感觉。",
+      "features": ["脸长大于脸宽", "中庭或下庭偏长", "线条流畅"],
+      "hair_tips": [
+        "选择有刘海的发型缩短脸长",
+        "横向蓬松的卷发增加脸部宽度",
+        "避免高马尾和长直发",
+        "齐刘海、空气刘海是首选"
+      ],
+      "collar_tips": ["高领、半高领平衡比例", "避免深V领"]
+    },
+    "heart": {
+      "id": "heart",
+      "name": "心形脸",
+      "description": "额头较宽，颧骨突出，下巴尖细，呈倒三角形，给人精致秀气的印象。",
+      "features": ["额头较宽", "颧骨突出", "下巴尖细"],
+      "hair_tips": [
+        "选择下巴长度的波波头或lob头",
+        "侧分长刘海平衡额头宽度",
+        "避免过短的超短发",
+        "发尾外翻或微卷能增加下巴宽度"
+      ],
+      "collar_tips": ["V领、心形领呼应脸型", "避免过宽的一字肩"]
+    },
+    "oval": {
+      "id": "oval",
+      "name": "鹅蛋脸",
+      "description": "额头略宽于下巴，脸部线条柔和流畅，比例均衡，是最理想的脸型。",
+      "features": ["比例均衡", "线条柔和", "额头略宽于下巴"],
+      "hair_tips": [
+        "几乎适合所有发型",
+        "可以尝试大胆的短发或个性染发",
+        "中分、侧分、刘海都能驾驭"
+      ],
+      "collar_tips": ["几乎所有领型都适合"]
+    },
+    "diamond": {
+      "id": "diamond",
+      "name": "菱形脸",
+      "description": "颧骨最宽，额头和下巴较窄，面部立体感强，给人时尚高级的感觉。",
+      "features": ["颧骨最宽", "额头下巴较窄", "立体感强"],
+      "hair_tips": [
+        "选择能遮盖颧骨的侧分长发",
+        "刘海能柔化颧骨线条",
+        "避免露出全部颧骨的扎发",
+        "耳边留碎发修饰太阳穴"
+      ],
+      "collar_tips": ["圆领、船领增加肩部宽度", "避免深V领"]
+    }
+  },
+  "body_types": {
+    "slim_tall": {
+      "id": "slim_tall",
+      "name": "瘦高型",
+      "description": "身材纤细，四肢修长，骨架较小，容易显得单薄。",
+      "style_tips": [
+        "选择有层次感的叠穿增加体积感",
+        "横条纹、格纹能横向拉宽视觉效果",
+        "避免过于紧身的服装",
+        "挺括的面料（牛仔、西装料）比软塌面料更好"
+      ],
+      "recommended": ["oversized外套", "阔腿裤", "横条纹", "层叠穿搭"],
+      "avoid": ["过于紧身的衣裤", "全身黑色", "细条纹"]
+    },
+    "balanced": {
+      "id": "balanced",
+      "name": "匀称型",
+      "description": "肩宽与臀宽接近，腰线明显，身材比例协调，穿衣限制最少。",
+      "style_tips": [
+        "几乎能驾驭所有风格",
+        "突出腰线是永恒法则",
+        "可以根据场合自由选择",
+        "尝试不同风格找到最适合自己的"
+      ],
+      "recommended": ["高腰裤/裙", "收腰连衣裙", "修身剪裁"],
+      "avoid": ["过于宽松的H型服装（除非走中性风）"]
+    },
+    "slightly_chubby": {
+      "id": "slightly_chubby",
+      "name": "微胖型",
+      "description": "整体圆润，脂肪分布均匀，选择得当可以穿出富态美感。",
+      "style_tips": [
+        "选择垂感好的面料，避免膨胀感材质",
+        "深色系的纵向线条有显瘦效果",
+        "V领、开襟设计拉长颈部",
+        "避免过于宽松或过于紧身的极端"
+      ],
+      "recommended": ["垂感衬衫", "A字裙", "直筒裤", "竖条纹"],
+      "avoid": ["亮片、欧根纱等膨胀材质", "高领紧身", "横条纹"]
+    },
+    "athletic": {
+      "id": "athletic",
+      "name": "壮实型",
+      "description": "骨架较大，肩宽背厚，肌肉线条明显，给人健康有力的感觉。",
+      "style_tips": [
+        "选择合身的剪裁，避免紧绷或过于宽松",
+        "深V领、大圆领能柔化肩线",
+        "垂感好的面料能增加优雅感",
+        "下装选择简洁线条平衡上半身"
+      ],
+      "recommended": ["西装外套", "直筒裤", "V领上衣", "垂感面料"],
+      "avoid": ["垫肩、泡泡袖", "横条纹", "高领"]
+    },
+    "petite": {
+      "id": "petite",
+      "name": "娇小型",
+      "description": "身材娇小，骨架小，整体比例需要注重显高。",
+      "style_tips": [
+        "高腰设计是显高关键",
+        "同色系穿搭拉长整体线条",
+        "避免 oversized 和长裙拖地",
+        "短款上衣+高腰下装是黄金公式"
+      ],
+      "recommended": ["高腰裤", "短款上衣", "尖头鞋", "竖条纹"],
+      "avoid": ["oversized", "低腰裤", "过膝长裙", " chunky 厚底鞋"]
+    },
+    "pear": {
+      "id": "pear",
+      "name": "梨形身材",
+      "description": "肩窄臀宽，下半身比上半身丰满，腰线明显。",
+      "style_tips": [
+        "上半身可以用亮色、花纹、设计感吸引视线",
+        "下半身选择深色、简洁线条",
+        "A字裙、阔腿裤能修饰臀腿",
+        "避免紧身裤和包臀裙"
+      ],
+      "recommended": ["A字裙", "阔腿裤", "亮色上衣", "肩部有设计的上衣"],
+      "avoid": ["铅笔裙", "紧身裤", "浅色下装"]
+    },
+    "apple": {
+      "id": "apple",
+      "name": "苹果型身材",
+      "description": "腰腹部圆润，四肢相对纤细，脂肪集中在躯干。",
+      "style_tips": [
+        "选择能遮盖腰腹的宽松上衣",
+        "露出纤细的四肢是优势",
+        "H型、A型轮廓比收腰更适合",
+        "避免腰带和紧身衣"
+      ],
+      "recommended": ["直筒连衣裙", "宽松衬衫", "短裤/短裙", "垂感上衣"],
+      "avoid": ["紧身衣", "腰带", "crop top", "包臀裙"]
+    },
+    "hourglass": {
+      "id": "hourglass",
+      "name": "沙漏型身材",
+      "description": "肩宽与臀宽相近，腰很细，曲线明显，是最具女人味的体型。",
+      "style_tips": [
+        "突出腰线是最大优势",
+        "收腰、包身的剪裁最能展现曲线",
+        "避免过于宽松的服装掩盖身材",
+        "V领、方领都能很好地展现优美线条"
+      ],
+      "recommended": ["收腰连衣裙", "高腰裤", "包身裙", "腰带"],
+      "avoid": ["过于宽松的H型服装", "直筒裙（除非搭配腰带）"]
+    }
+  },
+  "skin_tones": {
+    "warm": {
+      "id": "warm",
+      "name": "暖色调肤色",
+      "description": "肤色偏黄、偏桃或带金色基调，血管呈绿色，适合暖色系服装。",
+      "recommended_colors": ["驼色", "焦糖色", "珊瑚色", "橙色", "芥末黄", "橄榄绿", "砖红色", "米色"],
+      "avoid_colors": ["纯白色", "冷紫色", "冰蓝色", "荧光粉"],
+      "hair_colors": ["焦糖棕", "蜂蜜茶", "暖巧克力", "橘棕色", "深咖色"],
+      "avoid_hair_colors": ["纯黑色", "冷灰色", "蓝黑色", "银白色"],
+      "description": "你的肤色适合大地色系和暖色调，能衬托出健康的光泽感。"
+    },
+    "cool": {
+      "id": "cool",
+      "name": "冷色调肤色",
+      "description": "肤色偏粉、偏蓝或带玫瑰色调，血管呈紫色，适合冷色系服装。",
+      "recommended_colors": ["宝蓝色", "酒红色", "薄荷绿", "薰衣草紫", "冰粉色", "银灰色", "藏青色", "玫红色"],
+      "avoid_colors": ["橙色", "土黄色", "橄榄绿", "驼色", "咖啡色"],
+      "hair_colors": ["冷棕色", "黑茶色", "雾霾蓝", "灰紫色", "亚麻色"],
+      "avoid_hair_colors": ["金黄色", "橘棕色", "红棕色", "铜色"],
+      "description": "你的肤色适合冷艳高级的色彩，能凸显清透感和高级感。"
+    },
+    "neutral": {
+      "id": "neutral",
+      "name": "中性肤色",
+      "description": "肤色介于冷暖之间，血管颜色不明显，穿什么颜色都不会太突兀。",
+      "recommended_colors": ["象牙白", "浅灰", "裸粉色", "雾霾蓝", "豆绿色", "香芋紫", "奶茶色", "酒红"],
+      "avoid_colors": ["荧光色", "过于鲜艳的色彩"],
+      "hair_colors": ["亚麻棕", "巧克力色", "冷茶色", "蜜糖棕", "自然黑"],
+      "avoid_hair_colors": ["过于极端的潮色（除非刻意追求）"],
+      "description": "你的肤色非常百搭，大部分颜色都能驾驭，建议根据场合和心情选择。"
+    }
+  },
+  "outfits": [
+    {
+      "id": "o1",
+      "name": "职场干练风",
+      "description": "剪裁利落的西装外套搭配垂感衬衫，下装选择直筒裤或铅笔裙，展现专业自信。",
+      "occasions": ["work", "formal"],
+      "seasons": ["spring", "autumn"],
+      "body_types": ["balanced", "slim_tall", "hourglass", "pear"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "items": {
+        "top": "白色/浅蓝垂感衬衫",
+        "outer": "驼色/藏青修身西装",
+        "bottom": "黑色直筒裤/灰色铅笔裙",
+        "shoes": "尖头低跟鞋/乐福鞋",
+        "accessories": "珍珠耳钉 + 简约腕表"
+      }
+    },
+    {
+      "id": "o2",
+      "name": "韩系温柔风",
+      "description": "软糯的针织衫搭配高腰半裙，色调柔和温暖，营造温柔甜美的氛围。",
+      "occasions": ["daily", "date"],
+      "seasons": ["spring", "autumn"],
+      "body_types": ["petite", "balanced", "hourglass", "pear"],
+      "skin_tones": ["warm", "neutral"],
+      "tags": [],
+      "items": {
+        "top": "米白/燕麦色针织衫",
+        "outer": "浅卡其风衣",
+        "bottom": "高腰A字半裙",
+        "shoes": "芭蕾平底鞋/小白鞋",
+        "accessories": "细链项链 + 帆布包"
+      }
+    },
+    {
+      "id": "o3",
+      "name": "日系休闲风",
+      "description": "宽松的卫衣或T恤搭配阔腿裤，舒适随性又不失利落感。",
+      "occasions": ["daily", "casual"],
+      "seasons": ["spring", "summer", "autumn"],
+      "body_types": ["slim_tall", "apple", "slightly_chubby"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "items": {
+        "top": "纯色宽松T恤/连帽卫衣",
+        "outer": "牛仔外套/工装夹克",
+        "bottom": "卡其阔腿裤/束脚裤",
+        "shoes": "帆布鞋/老爹鞋",
+        "accessories": "棒球帽 + 帆布托特包"
+      }
+    },
+    {
+      "id": "o4",
+      "name": "法式优雅风",
+      "description": "经典的条纹衫或纯色上衣搭配高腰牛仔裤，看似简单却处处透露精致。",
+      "occasions": ["daily", "date", "casual"],
+      "seasons": ["spring", "summer", "autumn"],
+      "body_types": ["balanced", "hourglass", "pear", "slim_tall"],
+      "skin_tones": ["cool", "neutral"],
+      "tags": [],
+      "items": {
+        "top": "黑白条纹衫/纯色丝质上衣",
+        "outer": "黑色小西装/米色开衫",
+        "bottom": "高腰直筒牛仔裤",
+        "shoes": "红色芭蕾鞋/穆勒鞋",
+        "accessories": "金色hoop耳环 + 草编包"
+      }
+    },
+    {
+      "id": "o5",
+      "name": "运动活力风",
+      "description": "运动内衣搭配高腰legging，外罩oversized卫衣，既舒适又显身材。",
+      "occasions": ["sport", "casual"],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "body_types": ["athletic", "hourglass", "balanced", "slim_tall"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "items": {
+        "top": "运动bra + cropped卫衣",
+        "outer": "防风运动外套",
+        "bottom": "高腰legging/运动短裤",
+        "shoes": "跑鞋/训练鞋",
+        "accessories": "运动发带 + 智能手表"
+      }
+    },
+    {
+      "id": "o6",
+      "name": "夏日清爽风",
+      "description": "透气亚麻或棉质连衣裙，搭配凉鞋和草编配饰，轻松应对炎热天气。",
+      "occasions": ["daily", "vacation", "date"],
+      "seasons": ["summer"],
+      "body_types": ["balanced", "pear", "petite", "hourglass"],
+      "skin_tones": ["warm", "neutral"],
+      "tags": [],
+      "items": {
+        "top": "亚麻衬衫/吊带背心",
+        "outer": "防晒开衫",
+        "bottom": "白色亚麻阔腿裤/碎花连衣裙",
+        "shoes": "草编凉鞋/凉拖",
+        "accessories": "草帽 + 藤编包 + 墨镜"
+      }
+    },
+    {
+      "id": "o7",
+      "name": "约会浪漫风",
+      "description": "柔和色调的连衣裙，搭配精致配饰，营造温柔浪漫的约会氛围。",
+      "occasions": ["date", "party"],
+      "seasons": ["spring", "summer", "autumn"],
+      "body_types": ["hourglass", "balanced", "pear", "slim_tall"],
+      "skin_tones": ["cool", "neutral"],
+      "tags": [],
+      "items": {
+        "top": "丝质吊带/露肩上衣",
+        "outer": "短款针织开衫",
+        "bottom": "高腰碎花裙/鱼尾裙",
+        "shoes": "细带凉鞋/小猫跟",
+        "accessories": " delicate 项链 + 手拿包"
+      }
+    },
+    {
+      "id": "o8",
+      "name": "冬季温暖风",
+      "description": "羊毛大衣叠穿高领毛衣，搭配直筒靴，保暖又有型。",
+      "occasions": ["daily", "work", "formal"],
+      "seasons": ["winter"],
+      "body_types": ["balanced", "slim_tall", "apple", "hourglass"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "items": {
+        "top": "羊绒高领毛衣",
+        "outer": "驼色/黑色羊毛大衣",
+        "bottom": "深色直筒裤/针织半裙",
+        "shoes": "及踝靴/过膝靴",
+        "accessories": "羊毛围巾 + 皮质手套 + 贝雷帽"
+      }
+    }
+  ],
+  "hairstyles": [
+    {
+      "id": "h1",
+      "name": "法式空气刘海长卷发",
+      "description": "轻盈的空气刘海修饰额头，大波浪卷发增添柔美气质，适合大多数脸型。",
+      "face_shapes": ["oval", "long", "heart", "round"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "length": "中长发/长发",
+      "care_tips": ["使用大卷棒38mm打造自然波浪", "刘海需要定期修剪保持轻盈感"]
+    },
+    {
+      "id": "h2",
+      "name": "层次感锁骨发",
+      "description": "发尾层次分明，长度到锁骨位置，既清爽又能修饰脸型，非常百搭。",
+      "face_shapes": ["round", "square", "oval", "diamond"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "length": "锁骨发",
+      "care_tips": ["发尾打薄增加灵动感", "C字内扣能修饰下颌线"]
+    },
+    {
+      "id": "h3",
+      "name": "侧分大波浪",
+      "description": "三七分或二八分的大波浪卷发，成熟妩媚，能很好地拉长和修饰脸型。",
+      "face_shapes": ["round", "square", "oval"],
+      "skin_tones": ["warm", "neutral"],
+      "tags": [],
+      "length": "长发",
+      "care_tips": ["从耳朵下方开始卷更自然", "侧分比中分更有气场"]
+    },
+    {
+      "id": "h4",
+      "name": "齐肩外翘短发",
+      "description": "长度到肩膀，发尾微微外翘，俏皮减龄，非常适合年轻活泼的风格。",
+      "face_shapes": ["heart", "oval", "diamond"],
+      "skin_tones": ["cool", "neutral"],
+      "tags": [],
+      "length": "齐肩短发",
+      "care_tips": ["发尾外翘可用直板夹打造", "配合八字刘海更修饰脸型"]
+    },
+    {
+      "id": "h5",
+      "name": "日系碎发短发",
+      "description": "层次感碎发设计，蓬松自然，营造随性慵懒的氛围感。",
+      "face_shapes": ["round", "oval", "heart"],
+      "skin_tones": ["warm", "neutral"],
+      "tags": [],
+      "length": "短发",
+      "care_tips": ["需要定期修剪保持层次感", "发根蓬松是关键"]
+    },
+    {
+      "id": "h6",
+      "name": "中分黑长直",
+      "description": "经典的中分长直发，清纯高级，但需要发质好、发量多才能撑起来。",
+      "face_shapes": ["oval", "long", "heart"],
+      "skin_tones": ["cool", "neutral"],
+      "tags": [],
+      "length": "长发",
+      "care_tips": ["定期做发膜护理保持光泽", "发尾容易分叉需要勤修剪"]
+    },
+    {
+      "id": "h7",
+      "name": "羊毛卷",
+      "description": "细密的小卷发，发量暴增神器，复古又时髦，但需要精心打理。",
+      "face_shapes": ["long", "oval", "heart"],
+      "skin_tones": ["warm", "neutral"],
+      "tags": [],
+      "length": "中长发",
+      "care_tips": ["需要使用专门的卷发护理产品", "吹干时用手指缠绕定型"]
+    },
+    {
+      "id": "h8",
+      "name": "一刀切短发",
+      "description": "整齐利落的一刀切，干练时尚，适合追求个性和现代感的用户。",
+      "face_shapes": ["oval", "diamond", "heart"],
+      "skin_tones": ["cool", "neutral"],
+      "tags": [],
+      "length": "齐下巴短发",
+      "care_tips": ["需要直发才能剪出效果", "贴头皮会显脸大，发根要蓬松"]
+    },
+    {
+      "id": "h9",
+      "name": "低马尾/低发髻",
+      "description": "优雅知性的低扎发型，露出颈部线条，适合职场和正式场合。",
+      "face_shapes": ["oval", "long", "heart", "square"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "length": "中长发/长发",
+      "care_tips": ["留出耳边碎发更自然", "可以搭配丝巾或发箍点缀"]
+    },
+    {
+      "id": "h10",
+      "name": "高颅顶半扎发",
+      "description": "上半部分扎起，下半部分披散，既清爽又保留温柔感，还能增高颅顶。",
+      "face_shapes": ["round", "oval", "heart"],
+      "skin_tones": ["warm", "cool", "neutral"],
+      "tags": ["universal"],
+      "length": "中长发/长发",
+      "care_tips": ["扎发位置在头顶最高点", "拉松头顶发丝制造蓬松感"]
+    }
+  ]
+}
