@@ -23,3 +23,6 @@ pillow>=10.0.0
 
 # 生产 WSGI 服务器
 waitress>=3.0.0
+
+# 限流（可选，生产环境推荐）
+flask-limiter>=3.5.0

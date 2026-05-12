@@ -2,14 +2,17 @@
 分析 API v1
 核心接口：上传图片 + 问卷 → 返回穿搭/发型推荐
 兼容 PWA 和原生APP
+新增：付费墙控制、affiliate 商品注入、埋点、邀请奖励触发
 """
 
 from flask import request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.api.v1 import api_v1
 from app import db
-from app.models import User, AnalysisHistory
+from app.models import User, AnalysisHistory, UserMembership, MembershipTier
 from app.services import StyleAnalyzer, StorageService
+from app.services.monetization import MonetizationService
+from app.utils.decorators import analysis_limit, track_event
 
 # 初始化分析引擎（单例）
 analyzer = StyleAnalyzer()
@@ -17,6 +20,8 @@ analyzer = StyleAnalyzer()
 
 @api_v1.route('/analyze', methods=['POST'])
 @jwt_required(optional=True)
+@analysis_limit()
+@track_event('analyze_complete', data_key='survey')
 def analyze_image():
     """
     形象分析接口（v1）
@@ -46,6 +51,10 @@ def analyze_image():
     responses:
       200:
         description: 分析结果
+      402:
+        description: 需要升级会员
+      429:
+        description: 每日次数已用完
     """
     data = request.get_json() or {}
     image_data = data.get('image')
@@ -75,6 +84,12 @@ def analyze_image():
     # 执行分析
     result = analyzer.analyze(survey, analysis_type)
     
+    # 注入 affiliate 商品推荐（如果用户有会员权益）
+    if user_id:
+        result = MonetizationService.inject_affiliate(result, user_id, analysis_type)
+        # 触发邀请奖励检查（首次分析完成）
+        MonetizationService.check_and_reward_first_analysis(user_id)
+    
     # 保存分析历史
     record = AnalysisHistory.create_record(
         user_id=user_id,
@@ -84,6 +99,12 @@ def analyze_image():
         result=result,
         client_type=client_type,
     )
+    
+    # 更新今日统计
+    from app.models.analytics import DailyStats
+    stats = DailyStats.get_or_create_today()
+    stats.total_analyses += 1
+    db.session.commit()
     
     return jsonify({
         'id': record.id,
@@ -96,7 +117,7 @@ def analyze_image():
 def analyze_image_legacy():
     """
     兼容旧版 /api/analyze 路径（PWA前端当前使用）
-    直接调用 v1 接口逻辑
+    直接调用 v1 接口逻辑（复用付费墙和affiliate逻辑）
     """
     data = request.get_json() or {}
     
@@ -106,6 +127,30 @@ def analyze_image_legacy():
     
     if not any([survey.get('faceShape'), survey.get('bodyType'), survey.get('skinTone')]):
         return jsonify({'needSurvey': True, 'message': '请补充基本信息'})
+    
+    # 付费墙检查：游客每日限3次（通过 session 关联）
+    user_id = None
+    jwt_id = None
+    from flask_jwt_extended import verify_jwt_in_request
+    try:
+        verify_jwt_in_request(optional=True)
+        jwt_id = get_jwt_identity()
+        if jwt_id:
+            user_id = int(jwt_id)
+    except Exception:
+        pass
+
+    if user_id:
+        um = UserMembership.get_or_create(user_id)
+        if not um.can_analyze_today():
+            tier = MembershipTier.query.filter_by(code=um.tier_code).first()
+            limit = tier.max_analyses_per_day if tier else 3
+            return jsonify({
+                'error': 'DAILY_LIMIT_REACHED',
+                'message': f'今日分析次数已用完（{limit}次）',
+                'upgrade': {'title': '解锁无限分析', 'subtitle': '高级会员不限次数'}
+            }), 429
+        um.increment_analysis()
     
     # 保存图片
     image_path = None
@@ -117,22 +162,27 @@ def analyze_image_legacy():
     # 分析
     result = analyzer.analyze(survey, analysis_type)
     
-    # 尝试保存记录（如果有游客token）
-    from flask_jwt_extended import verify_jwt_in_request
-    try:
-        verify_jwt_in_request(optional=True)
-        user_id = get_jwt_identity()
-        if user_id:
-            AnalysisHistory.create_record(
-                user_id=int(user_id),
-                analysis_type=analysis_type,
-                survey=survey,
-                image_path=image_path,
-                result=result,
-                client_type='pwa',
-            )
-    except Exception:
-        pass
+    # 注入 affiliate（注册用户）
+    if user_id:
+        result = MonetizationService.inject_affiliate(result, user_id, analysis_type)
+        MonetizationService.check_and_reward_first_analysis(user_id)
+    
+    # 保存记录
+    if user_id:
+        AnalysisHistory.create_record(
+            user_id=user_id,
+            analysis_type=analysis_type,
+            survey=survey,
+            image_path=image_path,
+            result=result,
+            client_type='pwa',
+        )
+    
+    # 更新今日统计
+    from app.models.analytics import DailyStats
+    stats = DailyStats.get_or_create_today()
+    stats.total_analyses += 1
+    db.session.commit()
     
     return jsonify(result)
 

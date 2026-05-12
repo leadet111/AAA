@@ -8,4 +8,4 @@ from flask import Blueprint
 api_v1 = Blueprint('api_v1', __name__)
 
 # 导入各模块路由（必须在 Blueprint 创建之后）
-from . import auth, analyze, user
+from . import auth, analyze, user, monetization, invitation, analytics

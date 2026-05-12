@@ -40,9 +40,9 @@ class Config:
 class DevelopmentConfig(Config):
     FLASK_ENV = 'development'
     DEBUG = True
-    # 开发环境允许使用默认密钥，方便本地调试
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'dev-jwt-secret-key'
+    # 开发环境优先从环境变量读取，回退到随机生成的密钥（每次重启会变，提醒开发者配置）
+    SECRET_KEY = os.environ.get('SECRET_KEY') or os.urandom(32).hex()
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or os.urandom(32).hex()
 
 
 class ProductionConfig(Config):

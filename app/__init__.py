@@ -60,6 +60,12 @@ def create_app(config_name=None):
         from datetime import datetime
         return render_template('index.html', year=datetime.now().year)
 
+    # 数据库表创建和种子数据（SQLite 简单方案）
+    with app.app_context():
+        db.create_all()
+        from app.models.membership import MembershipTier
+        MembershipTier.seed_defaults()
+
     return app
 
 

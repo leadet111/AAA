@@ -5,5 +5,6 @@
 
 from .analyzer import StyleAnalyzer
 from .storage import StorageService
+from .monetization import MonetizationService
 
-__all__ = ['StyleAnalyzer', 'StorageService']
+__all__ = ['StyleAnalyzer', 'StorageService', 'MonetizationService']
