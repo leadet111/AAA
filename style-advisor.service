@@ -1,0 +1,16 @@
+[Unit]
+Description=穿搭发型顾问 PWA 服务
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/style-advisor
+Environment="PATH=/var/www/style-advisor/.venv/bin"
+ExecStart=/var/www/style-advisor/.venv/bin/python run_production.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

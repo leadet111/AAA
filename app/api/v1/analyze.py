@@ -118,9 +118,9 @@ def analyze_image_legacy():
     result = analyzer.analyze(survey, analysis_type)
     
     # 尝试保存记录（如果有游客token）
-    from flask_jwt_extended import verify_jwt_in_request_optional
+    from flask_jwt_extended import verify_jwt_in_request
     try:
-        verify_jwt_in_request_optional()
+        verify_jwt_in_request(optional=True)
         user_id = get_jwt_identity()
         if user_id:
             AnalysisHistory.create_record(

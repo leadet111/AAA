@@ -1,0 +1,37 @@
+server {
+    listen 80;
+    server_name your-domain.com www.your-domain.com;
+
+    # 日志
+    access_log /var/log/nginx/style-advisor.access.log;
+    error_log /var/log/nginx/style-advisor.error.log;
+
+    # 上传文件大小限制（16MB）
+    client_max_body_size 16M;
+
+    # 静态文件（由 Nginx 直接服务，性能更好）
+    location /static/ {
+        alias /var/www/style-advisor/static/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # 上传的图片
+    location /uploads/ {
+        alias /var/www/style-advisor/data/user_uploads/;
+        expires 7d;
+    }
+
+    # 反向代理到 Waitress
+    location / {
+        proxy_pass http://127.0.0.1:5001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+}

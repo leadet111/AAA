@@ -11,8 +11,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     """基础配置"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'dev-jwt-secret-key'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(
         seconds=int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES', 86400))
     )
@@ -40,6 +40,9 @@ class Config:
 class DevelopmentConfig(Config):
     FLASK_ENV = 'development'
     DEBUG = True
+    # 开发环境允许使用默认密钥，方便本地调试
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'dev-jwt-secret-key'
 
 
 class ProductionConfig(Config):

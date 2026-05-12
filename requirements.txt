@@ -18,5 +18,8 @@ python-dotenv>=1.0.0
 requests>=2.31.0
 python-dateutil>=2.8.0
 
-# 图片处理（预留）
-# pillow>=10.0.0
+# 图片处理（PWA 图标生成）
+pillow>=10.0.0
+
+# 生产 WSGI 服务器
+waitress>=3.0.0
