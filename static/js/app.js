@@ -285,7 +285,7 @@ function renderUpload() {
         '建议上传全身照，如不方便也可只传头像'}
     </div>
     <div class="bottom-bar">
-      <button class="btn btn-ghost" onclick="skipUpload()">跳过</button>
+      <button class="btn btn-ghost" onclick="skipUpload()">跳过（不推荐）</button>
       <button class="btn btn-primary" onclick="navigate('survey')">下一步</button>
     </div>
   `;
@@ -321,8 +321,7 @@ function removeImage() {
 }
 
 function skipUpload() {
-  state.uploadedImage = null;
-  navigate('survey');
+  alert('⚠️ 必须上传照片\n\nAI需要分析你的面部特征来识别性别，才能生成精准的三种个性化方案。\n\n请上传正面清晰的头像或全身照。');
 }
 
 // ============ 问卷 ============
@@ -461,6 +460,13 @@ async function startAnalyze() {
     return;
   }
 
+  // 必须上传照片
+  if (!state.uploadedImage) {
+    alert('⚠️ 必须上传照片\n\nAI需要分析你的面部特征来识别性别，才能生成精准的三种个性化穿搭和发型方案。\n\n请返回上一步上传正面清晰的头像或全身照。');
+    navigate('upload');
+    return;
+  }
+
   navigate('analyzing');
   await new Promise(r => setTimeout(r, 2000));
 
@@ -478,8 +484,13 @@ async function startAnalyze() {
     const data = await response.json();
 
     if (data.error) {
-      alert(data.error);
-      navigate('survey');
+      if (data.error === 'IMAGE_REQUIRED') {
+        alert(`⚠️ ${data.message}\n\n${data.hint || ''}`);
+        navigate('upload');
+      } else {
+        alert(data.message || data.error);
+        navigate('survey');
+      }
       return;
     }
 

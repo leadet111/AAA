@@ -102,6 +102,14 @@ def analyze_image():
     analysis_type = data.get('type', 'full')
     client_type = data.get('client_type', request.headers.get('X-Client-Type', 'pwa'))
     
+    # 必须上传照片（AI性别识别需要面部数据）
+    if not image_data or not isinstance(image_data, str) or not image_data.startswith('data:image'):
+        return jsonify({
+            'error': 'IMAGE_REQUIRED',
+            'message': '请上传照片以获得AI性别识别和精准推荐',
+            'hint': '上传正面清晰的头像或全身照，AI将自动分析你的性别特征并生成三种个性化方案'
+        }), 400
+    
     # 验证必填
     required = ['faceShape', 'bodyType', 'skinTone']
     missing = [r for r in required if not survey.get(r)]
@@ -195,6 +203,14 @@ def analyze_image_legacy():
     image_data = data.get('image')
     survey = data.get('survey', {})
     analysis_type = data.get('type', 'full')
+    
+    # 必须上传照片
+    if not image_data or not isinstance(image_data, str) or not image_data.startswith('data:image'):
+        return jsonify({
+            'error': 'IMAGE_REQUIRED',
+            'message': '请上传照片以获得AI性别识别和精准推荐',
+            'hint': '上传正面清晰的头像或全身照，AI将自动分析你的性别特征并生成三种个性化方案'
+        }), 400
     
     if not any([survey.get('faceShape'), survey.get('bodyType'), survey.get('skinTone')]):
         return jsonify({'needSurvey': True, 'message': '请补充基本信息'})
