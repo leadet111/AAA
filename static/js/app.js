@@ -27,6 +27,7 @@ const state = {
   historyDetailData: null,
   profileEditing: false,
   isLoading: false,
+  activeGenderScheme: null,
 };
 
 // ============ API 工具 ============
@@ -511,6 +512,18 @@ function renderResult() {
     return div;
   }
 
+  const dg = r.detected_gender || {};
+  const genderLabel = dg.label || '未知';
+  const confidence = dg.confidence || 0;
+  const provider = dg.provider || '';
+
+  // 确定默认选中的方案
+  const schemes = r.genderSchemes || {};
+  const schemeKeys = Object.keys(schemes);
+  if (!state.activeGenderScheme && schemeKeys.length > 0) {
+    state.activeGenderScheme = 'user';
+  }
+
   let html = `
     <div class="nav-back" onclick="navigate('home')">
       <span>←</span> 返回首页
@@ -526,7 +539,56 @@ function renderResult() {
     </div>
   `;
 
-  html += renderResultContent(r);
+  // AI性别识别提示
+  if (dg.gender && dg.gender !== 'unknown') {
+    html += `
+      <div class="gender-detect-banner">
+        <span class="icon">🔮</span>
+        <span>AI识别你的性别为：<span class="gender-label">${genderLabel}</span></span>
+        ${confidence > 0 ? `<span class="confidence">置信度 ${(confidence * 100).toFixed(0)}%</span>` : ''}
+      </div>
+    `;
+  }
+
+  // 三种方案 Tab
+  if (schemeKeys.length > 0) {
+    const tabLabels = {
+      'user': { icon: '👤', label: '你的方案', badge: 'AI推荐' },
+      'unisex': { icon: '⚧', label: '中性方案', badge: '百搭' },
+      'other': { icon: '✨', label: '另一风格', badge: '探索' },
+    };
+
+    html += `<div class="gender-scheme-tabs">`;
+    schemeKeys.forEach(key => {
+      const scheme = schemes[key];
+      const tl = tabLabels[key] || { icon: '✨', label: scheme.label || key, badge: '' };
+      const activeClass = state.activeGenderScheme === key ? 'active' : '';
+      html += `
+        <div class="gender-scheme-tab ${activeClass}" onclick="switchGenderScheme('${key}')">
+          <div>${tl.icon} ${tl.label}</div>
+          <span class="tab-badge">${scheme.label || tl.badge}</span>
+        </div>
+      `;
+    });
+    html += `</div>`;
+
+    // 各方案内容
+    schemeKeys.forEach(key => {
+      const scheme = schemes[key];
+      const activeClass = state.activeGenderScheme === key ? 'active' : '';
+      html += `<div class="gender-scheme-content ${activeClass}" data-scheme="${key}">`;
+
+      if (scheme.hint) {
+        html += `<div class="gender-scheme-hint">${scheme.hint}</div>`;
+      }
+
+      html += renderResultContent(scheme, key);
+      html += `</div>`;
+    });
+  } else {
+    // 兼容旧版：没有 genderSchemes
+    html += renderResultContent(r, null);
+  }
 
   html += `
     <div style="height: 2rem;"></div>
@@ -540,16 +602,21 @@ function renderResult() {
   return div;
 }
 
+function switchGenderScheme(key) {
+  state.activeGenderScheme = key;
+  render();
+}
+
 // ============ 结果内容渲染（复用） ============
-function renderResultContent(r) {
+function renderResultContent(r, schemeKey) {
   let html = '';
 
   html += `
     <div class="card" style="margin-top: -1rem; position: relative; z-index: 2;">
       <div class="card-title">📝 形象特征</div>
-      ${r.analysis.face ? `<p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem;"><strong>脸型：</strong>${r.analysis.face}</p>` : ''}
-      ${r.analysis.body ? `<p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem;"><strong>体型：</strong>${r.analysis.body}</p>` : ''}
-      ${r.analysis.skin ? `<p style="font-size: 0.85rem; color: var(--text-light);"><strong>肤色：</strong>${r.analysis.skin}</p>` : ''}
+      ${r.analysis && r.analysis.face ? `<p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem;"><strong>脸型：</strong>${r.analysis.face}</p>` : ''}
+      ${r.analysis && r.analysis.body ? `<p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem;"><strong>体型：</strong>${r.analysis.body}</p>` : ''}
+      ${r.analysis && r.analysis.skin ? `<p style="font-size: 0.85rem; color: var(--text-light);"><strong>肤色：</strong>${r.analysis.skin}</p>` : ''}
     </div>
   `;
 
@@ -563,7 +630,7 @@ function renderResultContent(r) {
             <p>${item.description}</p>
           </div>
           <div class="outfit-items">
-            ${Object.entries(item.items).map(([key, val]) => `
+            ${Object.entries(item.items || {}).map(([key, val]) => `
               <div class="outfit-item">
                 <span class="outfit-item-icon">${getItemIcon(key)}</span>
                 <span class="outfit-item-label">${getItemLabel(key)}</span>
@@ -571,9 +638,24 @@ function renderResultContent(r) {
               </div>
             `).join('')}
           </div>
+          ${renderProductLinks(item.product_links)}
         </div>
       `;
     });
+
+    // 其他穿搭选择
+    if (r.outfit.other_choices && r.outfit.other_choices.length > 0) {
+      html += `
+        <div class="other-choices-section">
+          <div class="other-choices-title">🔀 更多穿搭风格</div>
+          ${r.outfit.other_choices.map(c => `
+            <span class="choice-chip" onclick="alert('${c.name}：${c.description || ''}')">
+              ${c.name}
+            </span>
+          `).join('')}
+        </div>
+      `;
+    }
 
     if (r.outfit.colorAdvice) {
       html += `
@@ -609,20 +691,33 @@ function renderResultContent(r) {
 
   if (r.hair) {
     html += `<div class="section-title">💇 发型推荐</div>`;
-    r.hair.items.forEach(item => {
+    r.hair.items.forEach((item, idx) => {
+      const careId = `hair-care-${schemeKey || 'default'}-${idx}`;
       html += `
         <div class="hair-card">
           <h4>${item.name}</h4>
-          <div class="meta">长度：${item.length} · ${item.face_shapes.map(f => f).join('/')}</div>
+          <div class="meta">长度：${item.length} · ${(item.face_shapes || []).map(f => f).join('/')}</div>
           <p>${item.description}</p>
-          ${item.care_tips ? `
-            <ul class="tips-list">
-              ${item.care_tips.map(t => `<li>${t}</li>`).join('')}
-            </ul>
-          ` : ''}
+          
+          ${renderHairTypeCare(item.hair_type_care, careId)}
+          ${renderProductLinks(item.product_links)}
         </div>
       `;
     });
+
+    // 其他发型选择
+    if (r.hair.other_choices && r.hair.other_choices.length > 0) {
+      html += `
+        <div class="other-choices-section">
+          <div class="other-choices-title">🔀 更多发型选择</div>
+          ${r.hair.other_choices.map(c => `
+            <span class="choice-chip" onclick="alert('${c.name}（${c.length || ''}）：${c.description || ''}')">
+              ${c.name}
+            </span>
+          `).join('')}
+        </div>
+      `;
+    }
 
     if (r.hair.colorAdvice) {
       html += `
@@ -657,6 +752,89 @@ function renderResultContent(r) {
   }
 
   return html;
+}
+
+function renderProductLinks(links) {
+  if (!links || links.length === 0) return '';
+  return `
+    <div class="product-links">
+      <div class="product-links-title">🛒 购买链接</div>
+      <div class="product-link-list">
+        ${links.map(l => `
+          <a class="product-link-chip" href="${l.search_url}" target="_blank" rel="noopener">
+            ${l.title || l.keywords}
+            <span class="platform">${l.platform}</span>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderHairTypeCare(hairTypeCare, careId) {
+  if (!hairTypeCare || Object.keys(hairTypeCare).length === 0) return '';
+  
+  const types = [
+    { key: 'fine', label: '细软' },
+    { key: 'coarse', label: '粗硬' },
+    { key: 'curly', label: '自然卷' },
+    { key: 'damaged', label: '受损' },
+    { key: 'oily', label: '油性' },
+    { key: 'dry', label: '干性' },
+  ];
+  
+  const validTypes = types.filter(t => hairTypeCare[t.key]);
+  if (validTypes.length === 0) return '';
+  
+  const defaultType = validTypes[0].key;
+  
+  let html = `
+    <div class="hair-care-section">
+      <div class="hair-care-title">🧴 按发质选择打理方案</div>
+      <div class="hair-type-tabs" id="${careId}-tabs">
+  `;
+  
+  validTypes.forEach((t, i) => {
+    html += `<span class="hair-type-tab ${i === 0 ? 'active' : ''}" onclick="switchHairType('${careId}', '${t.key}', this)">${t.label}</span>`;
+  });
+  
+  html += `</div>`;
+  
+  validTypes.forEach((t, i) => {
+    const care = hairTypeCare[t.key];
+    const display = i === 0 ? 'block' : 'none';
+    html += `
+      <div class="hair-care-content" id="${careId}-${t.key}" style="display: ${display};">
+        <ul class="hair-care-tips">
+          ${(care.tips || []).map(tip => `<li>${tip}</li>`).join('')}
+        </ul>
+        ${care.products && care.products.length > 0 ? `
+          <div class="hair-products">
+            ${care.products.map(p => `<span class="hair-product-chip">${p}</span>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  });
+  
+  html += `</div>`;
+  return html;
+}
+
+function switchHairType(careId, type, el) {
+  const tabs = document.getElementById(careId + '-tabs');
+  if (tabs) {
+    tabs.querySelectorAll('.hair-type-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+  const contents = document.querySelectorAll(`[id^="${careId}-"]`);
+  contents.forEach(c => {
+    if (c.id === `${careId}-${type}`) {
+      c.style.display = 'block';
+    } else if (c.id !== `${careId}-tabs`) {
+      c.style.display = 'none';
+    }
+  });
 }
 
 function getItemIcon(key) {
@@ -795,7 +973,7 @@ function renderHistoryDetail() {
   `;
 
   if (r.analysis || r.outfit || r.hair) {
-    html += renderResultContent(r);
+    html += renderResultContent(r, null);
   } else {
     html += `<div class="card"><p>暂无详细结果数据</p></div>`;
   }
@@ -888,6 +1066,10 @@ function renderProfileView(u, p) {
         <span class="profile-field-value">${p.weight ? p.weight + ' kg' : '未设置'}</span>
       </div>
       <div class="profile-field">
+        <span class="profile-field-label">性别</span>
+        <span class="profile-field-value">${p.gender ? {male:'男性',female:'女性',unisex:'中性',unknown:'未知'}[p.gender] : '未设置'}</span>
+      </div>
+      <div class="profile-field">
         <span class="profile-field-label">风格偏好</span>
         <span class="profile-field-value">${u.style_preference || '未设置'}</span>
       </div>
@@ -929,6 +1111,13 @@ function renderProfileEdit(u, p) {
     { value: 'neutral', label: '中性色调' },
   ];
 
+  const genderOptions = [
+    { value: '', label: '请选择' },
+    { value: 'male', label: '男性' },
+    { value: 'female', label: '女性' },
+    { value: 'unisex', label: '中性' },
+  ];
+
   return `
     <div class="card">
       <div class="card-title">编辑档案</div>
@@ -952,6 +1141,12 @@ function renderProfileEdit(u, p) {
         <label class="form-label">肤色</label>
         <select class="form-select" id="edit-skin_tone">
           ${skinOptions.map(o => `<option value="${o.value}" ${p.skin_tone === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">性别</label>
+        <select class="form-select" id="edit-gender">
+          ${genderOptions.map(o => `<option value="${o.value}" ${p.gender === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
         </select>
       </div>
       <div class="form-group">
@@ -985,6 +1180,7 @@ async function saveProfile() {
     face_shape: document.getElementById('edit-face_shape').value || null,
     body_type: document.getElementById('edit-body_type').value || null,
     skin_tone: document.getElementById('edit-skin_tone').value || null,
+    gender: document.getElementById('edit-gender').value || null,
     height: document.getElementById('edit-height').value ? parseInt(document.getElementById('edit-height').value) : null,
     weight: document.getElementById('edit-weight').value ? parseInt(document.getElementById('edit-weight').value) : null,
     style_preference: document.getElementById('edit-style_preference').value.trim() || null,

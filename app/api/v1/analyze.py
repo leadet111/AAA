@@ -2,7 +2,7 @@
 分析 API v1
 核心接口：上传图片 + 问卷 → 返回穿搭/发型推荐
 兼容 PWA 和原生APP
-新增：付费墙控制、affiliate 商品注入、埋点、邀请奖励触发
+新增：AI性别识别、三种性别方案
 """
 
 from flask import request, jsonify, current_app
@@ -11,11 +11,51 @@ from app.api.v1 import api_v1
 from app import db
 from app.models import User, AnalysisHistory, UserMembership, MembershipTier
 from app.services import StyleAnalyzer, StorageService
+from app.services.gender_recognition import recognize_gender, GenderRecognitionResult
+from app.services.product_search import search_outfit_items, search_hair_products
 from app.services.monetization import MonetizationService
 from app.utils.decorators import analysis_limit, track_event
 
 # 初始化分析引擎（单例）
 analyzer = StyleAnalyzer()
+
+
+def _inject_product_links(result: dict) -> dict:
+    """
+    为分析结果注入商品搜索链接
+    每个穿搭单品和发型都会附带购买链接
+    """
+    schemes = result.get('genderSchemes', {})
+    
+    for scheme_key, scheme in schemes.items():
+        # 穿搭商品链接
+        if 'outfit' in scheme and 'items' in scheme['outfit']:
+            for item in scheme['outfit']['items']:
+                items_dict = item.get('items', {})
+                if items_dict:
+                    links = search_outfit_items(items_dict)
+                    item['product_links'] = [l.to_dict() for l in links[:9]]
+        
+        # 穿搭备选商品链接
+        if 'outfit' in scheme and 'other_choices' in scheme['outfit']:
+            for choice in scheme['outfit']['other_choices']:
+                links = search_outfit_items({'套装': choice.get('name', '')})
+                choice['product_links'] = [l.to_dict() for l in links[:3]]
+        
+        # 发型商品链接
+        if 'hair' in scheme and 'items' in scheme['hair']:
+            for item in scheme['hair']['items']:
+                hs_name = item.get('name', '')
+                links = search_hair_products(hs_name)
+                item['product_links'] = [l.to_dict() for l in links[:6]]
+        
+        # 发型备选商品链接
+        if 'hair' in scheme and 'other_choices' in scheme['hair']:
+            for choice in scheme['hair']['other_choices']:
+                links = search_hair_products(choice.get('name', ''))
+                choice['product_links'] = [l.to_dict() for l in links[:3]]
+    
+    return result
 
 
 @api_v1.route('/analyze', methods=['POST'])
@@ -25,7 +65,7 @@ analyzer = StyleAnalyzer()
 def analyze_image():
     """
     形象分析接口（v1）
-    上传图片 + 问卷，返回穿搭/发型推荐
+    上传图片 + 问卷，返回穿搭/发型推荐（含三种性别方案）
     ---
     security:
       - Bearer: []
@@ -38,7 +78,7 @@ def analyze_image():
           properties:
             image:
               type: string
-              description: base64 编码的图片（可选）
+              description: base64 编码的图片（可选，用于AI性别识别）
             survey:
               type: object
               required: true
@@ -50,7 +90,7 @@ def analyze_image():
               enum: [pwa, ios, android]
     responses:
       200:
-        description: 分析结果
+        description: 分析结果（含 detected_gender 和 genderSchemes）
       402:
         description: 需要升级会员
       429:
@@ -81,13 +121,43 @@ def analyze_image():
         result = storage.save(image_data, folder='analysis')
         image_path = result['path']
     
-    # 执行分析
-    result = analyzer.analyze(survey, analysis_type)
+    # ===== AI性别识别 =====
+    gender_result = None
+    if image_data and isinstance(image_data, str) and image_data.startswith('data:image'):
+        try:
+            gender_result = recognize_gender(image_data)
+            # 更新用户档案中的性别（如果用户已登录且之前未设置）
+            if user_id and gender_result and gender_result.gender in ('male', 'female'):
+                user = User.query.get(user_id)
+                if user and not user.gender:
+                    user.gender = gender_result.gender
+                    db.session.commit()
+        except Exception as e:
+            print(f'[Analyze] 性别识别失败: {e}')
+            gender_result = GenderRecognitionResult('unknown', 0.0, 'error')
+    
+    # 如果无法识别，尝试从用户档案读取
+    user_gender = 'unknown'
+    if gender_result and gender_result.gender in ('male', 'female', 'unisex'):
+        user_gender = gender_result.gender
+    elif user_id:
+        user = User.query.get(user_id)
+        if user and user.gender:
+            user_gender = user.gender
+    
+    # 执行分析（传入性别参数）
+    result = analyzer.analyze(survey, analysis_type, user_gender)
+    
+    # 在结果中注入性别识别信息
+    if gender_result:
+        result['detected_gender'] = gender_result.to_dict()
+    
+    # 注入商品搜索链接
+    result = _inject_product_links(result)
     
     # 注入 affiliate 商品推荐（如果用户有会员权益）
     if user_id:
         result = MonetizationService.inject_affiliate(result, user_id, analysis_type)
-        # 触发邀请奖励检查（首次分析完成）
         MonetizationService.check_and_reward_first_analysis(user_id)
     
     # 保存分析历史
@@ -98,6 +168,7 @@ def analyze_image():
         image_path=image_path,
         result=result,
         client_type=client_type,
+        gender_result=gender_result,
     )
     
     # 更新今日统计
@@ -159,8 +230,36 @@ def analyze_image_legacy():
         result = storage.save(image_data, folder='analysis')
         image_path = result['path']
     
+    # ===== AI性别识别 =====
+    gender_result = None
+    if image_data and isinstance(image_data, str) and image_data.startswith('data:image'):
+        try:
+            gender_result = recognize_gender(image_data)
+            if user_id and gender_result and gender_result.gender in ('male', 'female'):
+                user = User.query.get(user_id)
+                if user and not user.gender:
+                    user.gender = gender_result.gender
+                    db.session.commit()
+        except Exception as e:
+            print(f'[AnalyzeLegacy] 性别识别失败: {e}')
+            gender_result = GenderRecognitionResult('unknown', 0.0, 'error')
+    
+    user_gender = 'unknown'
+    if gender_result and gender_result.gender in ('male', 'female', 'unisex'):
+        user_gender = gender_result.gender
+    elif user_id:
+        user = User.query.get(user_id)
+        if user and user.gender:
+            user_gender = user.gender
+    
     # 分析
-    result = analyzer.analyze(survey, analysis_type)
+    result = analyzer.analyze(survey, analysis_type, user_gender)
+    
+    if gender_result:
+        result['detected_gender'] = gender_result.to_dict()
+    
+    # 注入商品搜索链接
+    result = _inject_product_links(result)
     
     # 注入 affiliate（注册用户）
     if user_id:
@@ -176,6 +275,7 @@ def analyze_image_legacy():
             image_path=image_path,
             result=result,
             client_type='pwa',
+            gender_result=gender_result,
         )
     
     # 更新今日统计

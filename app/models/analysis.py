@@ -1,6 +1,7 @@
 """
 分析历史模型
 记录每次穿搭/发型分析结果，支持用户回顾和推荐优化
+新增：gender 相关字段（AI识别性别 + 三种方案）
 """
 
 from datetime import datetime
@@ -30,6 +31,11 @@ class AnalysisHistory(db.Model):
     body_type = db.Column(db.String(20), nullable=True)
     skin_tone = db.Column(db.String(20), nullable=True)
     
+    # AI识别的性别信息
+    detected_gender = db.Column(db.String(10), nullable=True)  # AI识别的原始性别
+    detected_gender_confidence = db.Column(db.Float, nullable=True)
+    detected_gender_provider = db.Column(db.String(20), nullable=True)
+    
     # 元数据
     client_type = db.Column(db.String(20), default='pwa')  # pwa / ios / android
     ip_address = db.Column(db.String(45), nullable=True)
@@ -45,6 +51,11 @@ class AnalysisHistory(db.Model):
                 'body_type': self.body_type,
                 'skin_tone': self.skin_tone,
             },
+            'detected_gender': {
+                'gender': self.detected_gender,
+                'confidence': self.detected_gender_confidence,
+                'provider': self.detected_gender_provider,
+            } if self.detected_gender else None,
             'client_type': self.client_type,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
@@ -53,7 +64,8 @@ class AnalysisHistory(db.Model):
         return data
 
     @staticmethod
-    def create_record(user_id, analysis_type, survey, image_path, result, client_type='pwa'):
+    def create_record(user_id, analysis_type, survey, image_path, result, 
+                      client_type='pwa', gender_result=None):
         """创建分析记录"""
         record = AnalysisHistory(
             user_id=user_id,
@@ -66,6 +78,13 @@ class AnalysisHistory(db.Model):
             skin_tone=survey.get('skinTone'),
             client_type=client_type,
         )
+        
+        # 记录AI识别的性别
+        if gender_result:
+            record.detected_gender = gender_result.gender
+            record.detected_gender_confidence = gender_result.confidence
+            record.detected_gender_provider = gender_result.provider
+        
         db.session.add(record)
         db.session.commit()
         return record

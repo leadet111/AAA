@@ -358,6 +358,100 @@ html, body {
   100% { width: 100%; margin-left: 100%; }
 }
 
+/* ============ 性别识别提示 ============ */
+.gender-detect-banner {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius);
+  padding: 0.875rem 1.25rem;
+  margin: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #0369a1;
+}
+
+.gender-detect-banner .icon {
+  font-size: 1.5rem;
+}
+
+.gender-detect-banner .gender-label {
+  font-weight: 700;
+  color: #0284c7;
+}
+
+.gender-detect-banner .confidence {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-left: auto;
+}
+
+/* ============ 三种方案 Tab ============ */
+.gender-scheme-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gender-scheme-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.gender-scheme-tab {
+  flex: 1;
+  min-width: 90px;
+  padding: 0.6rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: white;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-light);
+}
+
+.gender-scheme-tab.active {
+  border-color: var(--primary);
+  background: #f5f3ff;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.gender-scheme-tab .tab-badge {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.gender-scheme-tab.active .tab-badge {
+  color: var(--primary-light);
+}
+
+.gender-scheme-content {
+  display: none;
+}
+
+.gender-scheme-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.gender-scheme-hint {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 1rem 0.75rem;
+  font-size: 0.8rem;
+  color: #92400e;
+  line-height: 1.5;
+}
+
 /* ============ 结果页 ============ */
 .result-header {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary));
@@ -830,6 +924,271 @@ html, body {
 .profile-field-value {
   font-weight: 500;
   color: var(--text);
+}
+
+/* ============ PC端响应式适配 ============ */
+@media (min-width: 769px) {
+  #app {
+    max-width: 900px;
+  }
+
+  .header {
+    padding: 3rem 2rem 3.5rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 1.5rem;
+  }
+
+  .feature-card:last-child {
+    grid-column: auto;
+  }
+
+  .result-header {
+    padding: 2rem;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .result-header h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .outfit-card,
+  .hair-card,
+  .card,
+  .gender-detect-banner,
+  .gender-scheme-hint {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+  }
+
+  .gender-scheme-tabs {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .section-title {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+  }
+
+  .upload-area,
+  .preview-container {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+  }
+
+  .bottom-bar,
+  .tab-bar {
+    max-width: 900px;
+  }
+
+  .history-item {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+  }
+
+  .hero-section {
+    padding: 0 2rem 2rem;
+  }
+
+  .hero-icon {
+    font-size: 6rem;
+  }
+
+  .nav-back {
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* ============ 购买链接 ============ */
+.product-links {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  background: #fafafa;
+}
+
+.product-links-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+}
+
+.product-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.product-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.product-link-chip:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.product-link-chip .platform {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.product-link-chip:hover .platform {
+  color: white;
+  background: rgba(255,255,255,0.2);
+}
+
+/* ============ 发质选择器 ============ */
+.hair-type-tabs {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+}
+
+.hair-type-tab {
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-light);
+}
+
+.hair-type-tab.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.hair-care-section {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.hair-care-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.hair-care-tips {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.hair-care-tips li {
+  margin-bottom: 0.3rem;
+  padding-left: 1rem;
+  position: relative;
+  list-style: none;
+}
+
+.hair-care-tips li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+}
+
+.hair-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.hair-product-chip {
+  background: #f0fdf4;
+  color: #166534;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
+/* ============ 其他选择 ============ */
+.other-choices-section {
+  margin: 0.75rem 1rem;
+}
+
+.other-choices-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+}
+
+.choice-chip {
+  display: inline-block;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.35rem 0.5rem 0;
+  font-size: 0.8rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.choice-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #f5f3ff;
+}
+
+/* ============ 图片生成区域 ============ */
+.gen-image-area {
+  margin: 0.75rem 1rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.gen-image-area img {
+  width: 100%;
+  display: block;
+}
+
+.gen-image-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.gen-image-placeholder .icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* ============ 表单输入框 ============ */

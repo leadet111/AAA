@@ -1,6 +1,7 @@
 """
 用户模型
 支持 PWA 游客模式和原生APP注册用户
+新增：gender 性别字段（AI自动识别）
 """
 
 from datetime import datetime
@@ -24,6 +25,9 @@ class User(db.Model):
     height = db.Column(db.Integer, nullable=True)  # cm
     weight = db.Column(db.Integer, nullable=True)  # kg
     
+    # AI识别的性别（male/female/unisex/unknown）
+    gender = db.Column(db.String(10), nullable=True)
+    
     # 用户偏好
     style_preference = db.Column(db.String(50), nullable=True)
     
@@ -46,6 +50,7 @@ class User(db.Model):
                 'skin_tone': self.skin_tone,
                 'height': self.height,
                 'weight': self.weight,
+                'gender': self.gender,
             },
             'style_preference': self.style_preference,
             'created_at': self.created_at.isoformat() if self.created_at else None,

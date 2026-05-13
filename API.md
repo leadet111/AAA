@@ -1,6 +1,7 @@
 # 穿搭发型顾问 - API 接口文档
 
 > **PWA 和原生APP共用同一套后端 API**
+> **新增：AI性别识别、三种性别方案、发质分类打理、商品搜索链接**
 
 ## 基础信息
 
@@ -31,7 +32,8 @@
     "profile": {
       "face_shape": null,
       "body_type": null,
-      "skin_tone": null
+      "skin_tone": null,
+      "gender": null
     }
   },
   "is_guest": true
@@ -61,14 +63,18 @@ Content-Type: application/json
   "username": "小明",
   "face_shape": "oval",
   "body_type": "hourglass",
-  "skin_tone": "warm"
+  "skin_tone": "warm",
+  "gender": "female",
+  "height": 165,
+  "weight": 55,
+  "style_preference": "简约"
 }
 ```
 
 ## 核心分析接口
 
 ### POST `/analyze` - 形象分析
-上传照片 + 问卷，返回穿搭/发型推荐。
+上传照片 + 问卷，AI自动识别性别，返回穿搭/发型推荐（含三种性别方案）。
 
 **请求头：**
 ```http
@@ -80,7 +86,7 @@ X-Client-Type: ios
 **请求体：**
 ```json
 {
-  "image": "data:image/jpeg;base64,/9j/4AAQ...",  // 可选
+  "image": "data:image/jpeg;base64,/9j/4AAQ...",  // 可选，用于AI性别识别
   "survey": {
     "faceShape": "oval",       // 必填: round/square/long/heart/oval/diamond
     "bodyType": "hourglass",    // 必填: slim_tall/balanced/slightly_chubby/athletic/petite/pear/apple/hourglass
@@ -108,20 +114,78 @@ X-Client-Type: ios
       "body": "...",
       "skin": "..."
     },
-    "outfit": {
-      "items": [...],
-      "colorAdvice": {
-        "recommended": ["驼色", "焦糖色", ...],
-        "avoid": ["纯白色", "冷紫色", ...]
-      },
-      "bodyTips": ["..."]
+    "detected_gender": {
+      "gender": "female",
+      "label": "女性",
+      "confidence": 0.92,
+      "provider": "mock"
     },
-    "hair": {
-      "items": [...],
-      "faceTips": ["..."],
-      "colorAdvice": {
-        "recommended": ["焦糖棕", "蜂蜜茶", ...],
-        "avoid": ["纯黑色", "冷灰色", ...]
+    "genderSchemes": {
+      "user": {
+        "gender": "female",
+        "label": "女性",
+        "is_primary": true,
+        "hint": "AI识别你的性别为「女性」，这是为你量身定制的方案",
+        "outfit": {
+          "items": [
+            {
+              "id": "o1",
+              "name": "职场干练风",
+              "description": "...",
+              "items": {"top": "...", "outer": "...", "bottom": "...", "shoes": "...", "accessories": "..."},
+              "product_links": [
+                {"title": "[上装] 白色垂感衬衫", "search_url": "https://s.taobao.com/search?q=...", "platform": "淘宝"}
+              ]
+            }
+          ],
+          "other_choices": [
+            {"id": "o2", "name": "韩系温柔风", "description": "..."}
+          ],
+          "colorAdvice": {...},
+          "bodyTips": ["..."]
+        },
+        "hair": {
+          "items": [
+            {
+              "id": "h1",
+              "name": "法式空气刘海长卷发",
+              "description": "...",
+              "length": "中长发/长发",
+              "hair_type_care": {
+                "fine": {"tips": ["..."], "products": ["蓬松喷雾", "海盐喷雾"]},
+                "coarse": {"tips": ["..."], "products": ["柔顺发膜", "护发精油"]},
+                "curly": {"tips": ["..."], "products": ["弹力素", "卷发霜"]},
+                "damaged": {"tips": ["..."], "products": ["修复发膜", "护发精油"]},
+                "oily": {"tips": ["..."], "products": ["控油洗发水", "清爽发蜡"]},
+                "dry": {"tips": ["..."], "products": ["滋润发膜", "护发精油"]}
+              },
+              "product_links": [
+                {"title": "法式空气刘海长卷发 造型", "search_url": "https://s.taobao.com/search?q=...", "platform": "淘宝"}
+              ]
+            }
+          ],
+          "other_choices": [
+            {"id": "h2", "name": "层次感锁骨发", "description": "...", "length": "锁骨发"}
+          ],
+          "faceTips": ["..."],
+          "colorAdvice": {...}
+        }
+      },
+      "unisex": {
+        "gender": "unisex",
+        "label": "中性",
+        "is_primary": false,
+        "hint": "中性风格，简约百搭，适合追求无性别穿搭的你",
+        "outfit": {...},
+        "hair": {...}
+      },
+      "other": {
+        "gender": "male",
+        "label": "男性",
+        "is_primary": false,
+        "hint": "尝试「男性」风格，发现不一样的自己。每个人都有探索不同风格的权利 ✨",
+        "outfit": {...},
+        "hair": {...}
       }
     }
   }
@@ -142,6 +206,30 @@ Authorization: Bearer <token>
 Authorization: Bearer <token>
 ```
 
+## 性别识别配置
+
+### 百度AI人脸检测（推荐）
+配置环境变量：
+```bash
+BAIDU_API_KEY=你的API Key
+BAIDU_SECRET_KEY=你的Secret Key
+```
+
+### 阿里云视觉智能
+```bash
+ALIYUN_API_KEY=你的API Key
+```
+
+### 本地Stable Diffusion（图片生成）
+```bash
+SD_API_URL=http://127.0.0.1:7860
+```
+
+### Replicate（图片生成）
+```bash
+REPLICATE_API_TOKEN=你的Token
+```
+
 ## 知识库接口
 
 ### GET `/knowledge` - 获取知识库元数据
@@ -151,9 +239,10 @@ Authorization: Bearer <token>
 ```json
 {
   "face_shapes": ["round", "square", "long", "heart", "oval", "diamond"],
-  "body_types": ["slim_tall", "balanced", ...],
+  "body_types": ["slim_tall", "balanced", "slightly_chubby", "athletic", "petite", "pear", "apple", "hourglass"],
   "skin_tones": ["warm", "cool", "neutral"],
-  "version": "1.0.0"
+  "hair_types": ["fine", "coarse", "curly", "damaged", "oily", "dry"],
+  "version": "2.0.0"
 }
 ```
 
@@ -182,8 +271,16 @@ final analyzeResponse = await http.post(
       'bodyType': 'hourglass',
       'skinTone': 'warm',
     },
+    'image': base64Image,  // 可选，用于AI性别识别
   }),
 );
+
+final result = jsonDecode(analyzeResponse.body)['result'];
+final detectedGender = result['detected_gender'];
+final schemes = result['genderSchemes'];
+// schemes['user'] - 用户性别方案
+// schemes['unisex'] - 中性方案
+// schemes['other'] - 另一性别方案
 ```
 
 ### 数据存储策略
@@ -191,11 +288,12 @@ final analyzeResponse = await http.post(
 - **用户档案**：首次分析后缓存到本地，后续直接读取
 - **分析历史**：调用 `/analyze/history` 同步，支持离线查看
 - **知识库**：调用 `/knowledge` 获取版本号，有更新时全量同步
+- **性别**：AI自动识别，无需用户手动填写
 
 ### 图片上传
 1. 前端压缩图片至 800px 宽，JPEG 质量 85%
 2. Base64 编码后放入 `image` 字段
-3. 后期可扩展为 multipart/form-data 直接上传文件
+3. 后端自动识别性别并返回三种方案
 
 ## Swagger 在线文档
 

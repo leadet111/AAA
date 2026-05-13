@@ -152,7 +152,7 @@ def update_profile():
     
     # 允许更新的字段
     allowed_fields = ['username', 'face_shape', 'body_type', 'skin_tone', 
-                      'height', 'weight', 'style_preference']
+                      'height', 'weight', 'style_preference', 'gender']
     for field in allowed_fields:
         if field in data:
             setattr(user, field, data[field])
