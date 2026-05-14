@@ -65,6 +65,65 @@ class GenderRecognitionService(ABC):
         return image_data
 
 
+class FacePlusPlusGenderRecognition(GenderRecognitionService):
+    """
+    Face++ 人脸检测性别识别
+    文档：https://console.faceplusplus.com.cn/documents/4888373
+    需要配置：FACE_API_KEY, FACE_API_SECRET
+    """
+    
+    name = 'faceplusplus'
+    
+    def __init__(self, api_key: Optional[str] = None,
+                 api_secret: Optional[str] = None):
+        self.api_key = api_key or os.environ.get('FACE_API_KEY')
+        self.api_secret = api_secret or os.environ.get('FACE_API_SECRET')
+        self.api_url = os.environ.get('FACE_API_URL', 'https://api-cn.faceplusplus.com/facepp/v3/detect')
+    
+    def recognize(self, image_data: str) -> GenderRecognitionResult:
+        if not self.api_key or not self.api_secret:
+            return GenderRecognitionResult('unknown', 0.0, self.name)
+        
+        image_b64 = self._clean_base64(image_data)
+        
+        payload = {
+            'api_key': self.api_key,
+            'api_secret': self.api_secret,
+            'image_base64': image_b64,
+            'return_attributes': 'gender',
+        }
+        
+        try:
+            resp = requests.post(self.api_url, data=payload, timeout=15)
+            data = resp.json()
+            
+            if 'error_message' in data:
+                print(f'[Face++] API错误: {data}')
+                return GenderRecognitionResult('unknown', 0.0, self.name, data)
+            
+            faces = data.get('faces', [])
+            if not faces:
+                return GenderRecognitionResult('unknown', 0.0, self.name, data)
+            
+            # 取第一张人脸（或置信度最高的）
+            best_face = faces[0]
+            attributes = best_face.get('attributes', {})
+            gender_info = attributes.get('gender', {})
+            
+            # Face++ 返回 Male/Female
+            fp_gender = gender_info.get('value', 'unknown').lower()
+            confidence = gender_info.get('confidence', 0.0) / 100.0  # Face++ 返回 0-100
+            
+            gender_map = {'male': 'male', 'female': 'female'}
+            mapped = gender_map.get(fp_gender, 'unknown')
+            
+            return GenderRecognitionResult(mapped, confidence, self.name, data)
+        
+        except Exception as e:
+            print(f'[Face++] 请求异常: {e}')
+            return GenderRecognitionResult('unknown', 0.0, self.name)
+
+
 class BaiduGenderRecognition(GenderRecognitionService):
     """
     百度AI人脸检测性别识别
@@ -232,21 +291,26 @@ class DefaultGenderRecognition(GenderRecognitionService):
     def __init__(self):
         self.providers = []
         
-        # 1. 百度AI
+        # 1. Face++
+        facepp = FacePlusPlusGenderRecognition()
+        if facepp.api_key and facepp.api_secret:
+            self.providers.append(facepp)
+        
+        # 2. 百度AI
         baidu = BaiduGenderRecognition()
         if baidu.api_key and baidu.secret_key:
             self.providers.append(baidu)
         
-        # 2. 阿里云
+        # 3. 阿里云
         aliyun = AliyunGenderRecognition()
         if aliyun.api_key:
             self.providers.append(aliyun)
         
-        # 3. 开发环境使用Mock
+        # 4. 开发环境使用Mock
         if os.environ.get('FLASK_ENV') == 'development':
             self.providers.append(MockGenderRecognition())
         
-        # 4. 最终fallback：启发式
+        # 5. 最终fallback：启发式
         self.providers.append(HeuristicGenderRecognition())
     
     def recognize(self, image_data: str) -> GenderRecognitionResult:

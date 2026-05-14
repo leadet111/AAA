@@ -33,6 +33,12 @@ class Config:
     BAIDU_SECRET_KEY = os.environ.get('BAIDU_SECRET_KEY')
     ALIYUN_API_KEY = os.environ.get('ALIYUN_API_KEY')
 
+    # CORS 跨域配置（生产环境限制为实际域名）
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')
+
+    # 域名配置
+    SERVER_NAME = os.environ.get('SERVER_NAME')
+
     # API 版本
     API_VERSION = 'v1'
 
@@ -43,6 +49,8 @@ class DevelopmentConfig(Config):
     # 开发环境优先从环境变量读取，回退到随机生成的密钥（每次重启会变，提醒开发者配置）
     SECRET_KEY = os.environ.get('SECRET_KEY') or os.urandom(32).hex()
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or os.urandom(32).hex()
+    # 开发环境允许所有跨域来源
+    CORS_ORIGINS = '*'
 
 
 class ProductionConfig(Config):

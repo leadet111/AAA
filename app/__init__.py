@@ -7,12 +7,14 @@ import os
 from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from flasgger import Swagger
 
 # 初始化扩展（先不绑定app）
 db = SQLAlchemy()
 jwt = JWTManager()
 swagger = Swagger()
+cors = CORS()
 
 
 def create_app(config_name=None):
@@ -33,6 +35,17 @@ def create_app(config_name=None):
     # 初始化扩展
     db.init_app(app)
     jwt.init_app(app)
+    
+    # CORS 跨域配置（PWA/APP 跨域访问必需）
+    allowed_origins = app.config.get('CORS_ORIGINS', '*')
+    cors.init_app(app, resources={
+        r"/api/*": {
+            "origins": allowed_origins,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "X-Client-Type"],
+            "supports_credentials": True,
+        }
+    })
 
     # Swagger API 文档（原生APP开发参考）
     swagger.template = {

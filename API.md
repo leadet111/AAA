@@ -7,7 +7,7 @@
 
 | 项目 | 值 |
 |------|-----|
-| 基础URL | `http://<host>:5001/api/v1` |
+| 基础URL | `https://nuozhong.cn/api/v1` |
 | 数据格式 | JSON |
 | 认证方式 | Bearer Token (JWT) |
 | 客户端标识 | `X-Client-Type: pwa / ios / android` |
@@ -299,5 +299,5 @@ final schemes = result['genderSchemes'];
 
 启动服务后访问：
 ```
-http://localhost:5001/apidocs/
+https://nuozhong.cn/apidocs/
 ```

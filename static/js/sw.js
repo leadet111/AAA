@@ -1,4 +1,4 @@
-const CACHE_NAME = 'style-advisor-v2';
+const CACHE_NAME = 'style-advisor-v3';
 const urlsToCache = [
   '/',
   '/static/css/style.css',

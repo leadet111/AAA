@@ -119,7 +119,7 @@ cp nginx.conf.example /etc/nginx/sites-available/style-advisor
 nano /etc/nginx/sites-available/style-advisor
 ```
 
-将 `your-domain.com` 替换为你的实际域名。
+域名已配置为 `nuozhong.cn`。
 
 ### 4.2 启用站点
 
@@ -132,7 +132,7 @@ systemctl restart nginx
 ## 5. 配置 HTTPS（Let's Encrypt）
 
 ```bash
-certbot --nginx -d your-domain.com -d www.your-domain.com
+certbot --nginx -d nuozhong.cn -d www.nuozhong.cn
 ```
 
 按提示操作，选择自动重定向 HTTP 到 HTTPS。
@@ -150,7 +150,7 @@ certbot renew --dry-run
 - **记录值**: 你的服务器公网 IP
 - **TTL**: 默认
 
-等待 DNS 生效（通常几分钟到几小时），然后访问 `https://your-domain.com`。
+等待 DNS 生效（通常几分钟到几小时），然后访问 `https://nuozhong.cn`。
 
 ## 7. PWA 验证
 
